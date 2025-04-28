@@ -1,0 +1,198 @@
+:root {
+    --furia-black: #000000;
+    --furia-white: #ffffff;
+    --furia-beige: #f5f5f0; 
+    --furia-gray: #e8e8e8;
+    --accent: #000000;
+}
+
+body {
+    background-color: var(--furia-beige);
+    color: var(--furia-black);
+    font-family: 'Montserrat', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.box-questions {
+    background-color: var(--furia-white);
+    margin-top: 0;
+    color: var(--furia-black);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    height: 80vh;
+    max-height: 800px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--furia-black);
+    overflow: hidden;
+}
+
+.header {
+    background-color: var(--furia-black);
+    padding: 1.2rem;
+    border-radius: 13px 13px 0 0;
+    color: var(--furia-white);
+    font-size: 1.4rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--furia-black);
+}
+
+#status {
+    color: var(--furia-black);
+    font-size: 0.9rem;
+    padding: 5px;
+    min-height: 20px;
+    opacity: 0.7;
+}
+
+#historic {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: var(--furia-white);
+}
+
+#historic p {
+    margin: 0;
+    padding: 12px 15px;
+    border-radius: 12px;
+    max-width: 80%;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    position: relative;
+    word-wrap: break-word;
+}
+
+/* Mensagens do usuário */
+#historic p:nth-child(odd) {
+    background-color: var(--furia-black);
+    color: var(--furia-white);
+    align-self: flex-start;
+    text-align: left;
+    border-bottom-left-radius: 5px;
+    margin-left: 15px;
+}
+
+/* Mensagens do bot - com logo da FURIA */
+#historic p:nth-child(even) {
+    background-color: var(--furia-gray); /* Fundo cinza claro para mensagens do bot */
+    color: var(--furia-black);
+    align-self: flex-end;
+    text-align: right;
+    border-bottom-right-radius: 5px;
+    margin-right: 15px;
+    border: 1px solid var(--furia-black);
+    padding-right: 40px; /* Espaço para o logo */
+    position: relative;
+}
+
+/* Adicionando o logo da FURIA nas mensagens do bot */
+#historic p:nth-child(even)::after {
+    content: "";
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background-image: url('https://kingsleague.pro/_ipx/s_256x256/kama/production/team/248545336.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    border: 2px solid var(--furia-black);
+    background-color: var(--furia-white);
+}
+
+.footer {
+    background-color: var(--furia-white);
+    padding: 1rem;
+    display: flex;
+    gap: 10px;
+    border-top: 2px solid var(--furia-black);
+}
+
+input {
+    flex-grow: 1;
+    font-size: 1rem;
+    outline: none;
+    border: 2px solid var(--furia-black);
+    padding: 12px 15px;
+    border-radius: 25px;
+    background-color: var(--furia-white);
+    color: var(--furia-black);
+    transition: all 0.3s;
+    font-family: 'Montserrat', sans-serif;
+}
+
+input:focus {
+    border-color: var(--furia-black);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+#btn-submit {
+    border-radius: 25px;
+    font-size: 1rem;
+    border: 2px solid var(--furia-black);
+    padding: 12px 20px;
+    background-color: var(--furia-black);
+    color: var(--furia-white);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+#btn-submit:hover {
+    background-color: var(--furia-white);
+    color: var(--furia-black);
+}
+
+#btn-submit:active {
+    transform: translateY(1px);
+}
+
+/* Scrollbar styling */
+#historic::-webkit-scrollbar {
+    width: 8px;
+}
+
+#historic::-webkit-scrollbar-track {
+    background: var(--furia-gray);
+    border-radius: 10px;
+}
+
+#historic::-webkit-scrollbar-thumb {
+    background-color: var(--furia-black);
+    border-radius: 10px;
+}
+
+/* Mensagem de boas-vindas */
+.welcome-message {
+    background-color: transparent !important;
+    text-align: center !important;
+    color: var(--furia-black) !important;
+    font-size: 0.9rem !important;
+    border-bottom: 1px dashed var(--furia-black) !important;
+    border-radius: 0 !important;
+    margin: 10px auto !important;
+    max-width: 100% !important;
+}
+
