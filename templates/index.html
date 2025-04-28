@@ -18,14 +18,15 @@
         <p id="status"></p>
         <div id="historic">
             <p class="welcome-message">
-                Bem-vindo ao FURIA_BOT! Pergunte sobre o time de CS:GO.
+                Bem-vindo ao FURIA_BOT! Use @FuriaBot seguido de sua pergunta sobre o time de CS:GO.
             </p>
         </div>
         <div class="footer">
-            <input type="text" placeholder="Digite sua pergunta sobre a FURIA..." id="message-input" autocomplete="off">
+            <input type="text" placeholder="Digite @FuriaBot seguido de sua pergunta..." id="message-input" autocomplete="off">
             <button id="btn-submit">ENVIAR</button>
         </div>
     </div>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

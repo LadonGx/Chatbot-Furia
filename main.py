@@ -1,26 +1,20 @@
+from flask import Flask, render_template, request, session, redirect, url_for
+from flask_socketio import SocketIO
 from openai import OpenAI
-from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-from routes import *
-
-api_key=os.getenv("OPENROUTER_API_KEY")
-
-if not api_key:
-    raise ValueError("Erro: API key não encontrada! Crie um arquivo .env baseado no .env.example.")
-
-# Configuração do cliente
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=api_key
+    api_key=os.getenv("OPENROUTER_API_KEY")
 )
 
-# Contexto do sistema para o chatbot
 system_context = """
 Você é o FURIA_BOT, assistente virtual oficial da FURIA Esports (Counter-Strike). 
 Seu tom deve ser energético, competitivo e cheio de atitude, refletindo o espírito da FURIA.
@@ -41,7 +35,6 @@ Responda como um verdadeiro fã da FURIA, com a energia que representa a torcida
 """
 
 def pergunte(question: str) -> str:
-    """Envia pergunta para a API e retorna a resposta"""
     try:
         completion = client.chat.completions.create(
             extra_headers={
@@ -59,29 +52,61 @@ def pergunte(question: str) -> str:
     except Exception as e:
         return f"Erro ao consultar a API: {str(e)}"
 
-def main():
-    print("""
-    🔴⚫ FURIA CS:GO Chatbot ⚫🔴
-    --------------------------
-    Digite suas perguntas sobre o time (ou 'sair' para encerrar)
-    """)
+@app.route("/")
+def homepage():
+    return render_template("index.html")
+
+active_sessions = set()
+
+
+@socketio.on('connect')
+def handle_connect():
+    active_sessions.add(request.sid)
+    print(f"Cliente conectado: {request.sid}")
+    # Notifica todos sobre novo usuário
+    socketio.emit('system_message', {
+        'message': 'Um novo usuário entrou no chat!',
+        'type': 'notification'
+    }, skip_sid=request.sid)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    active_sessions.discard(request.sid)
+    print(f"Cliente desconectado: {request.sid}")
+    # Notifica todos sobre usuário que saiu
+    socketio.emit('system_message', {
+        'message': 'Um usuário saiu do chat.',
+        'type': 'notification'
+    })
+
+@socketio.on('message')
+def handle_message(data):
+    if request.sid not in active_sessions:
+        return
+
+    message = data['message']
     
-    while True:
-        user_input = input("\nSua pergunta: ").strip()
-        
-        if user_input.lower() in ['sair', 'exit', 'quit']:
-            print("Até mais, furioso!")
-            break
+    if message.startswith('@FuriaBot'):
+        question = message.replace('@FuriaBot', '').strip()
+        if question:
+            # Envia confirmação apenas para o remetente
+            socketio.emit('user_message', {
+                'message': message,
+                'sender_id': request.sid
+            }, to=request.sid)
             
-        if not user_input:
-            print("Por favor, digite uma pergunta válida.")
-            continue
-            
-        print("\nProcessando...", end="\r")
-        response = pergunte(user_input)
-        print("\nFURIA_BOT:", response)
+            response = pergunte(question)
+            # Envia a resposta do bot para TODOS
+            socketio.emit('bot_message', {
+                'response': response,
+                'question': question
+            })
+    else:
+        # Mensagem normal para todos exceto o remetente
+        socketio.emit('user_message', {
+            'message': message,
+            'sender_id': request.sid
+        }, skip_sid=request.sid)
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
-    
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

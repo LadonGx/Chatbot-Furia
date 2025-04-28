@@ -3,72 +3,132 @@ document.addEventListener('DOMContentLoaded', function() {
     const btn = document.getElementById('btn-submit');
     const historic = document.getElementById('historic');
     const status = document.getElementById('status');
+    const usernameDisplay = document.getElementById('username-display');
 
+    // Conecta ao WebSocket
+    const socket = io();
+    
     // Foca no input quando a página carrega
     input.focus();
 
-    async function sendQuestion() {
-        const question = input.value.trim();
-        if (!question) {
-            status.textContent = "Digite uma pergunta válida!";
+    // Função para adicionar mensagens ao histórico
+    function addMessage(content, type, sender = null) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', type);
+
+        switch(type) {
+            case 'sent':
+                messageElement.innerHTML = `
+                    <div class="message-bubble sent-bubble">
+                        ${content}
+                    </div>
+                `;
+                break;
+
+            case 'received':
+                messageElement.innerHTML = `
+                    <div class="message-bubble received-bubble">
+                        ${content}
+                    </div>
+                `;
+                break;
+
+            case 'bot':
+                messageElement.innerHTML = `
+                    <div class="message-header">
+                        <img src="https://kingsleague.pro/_ipx/s_256x256/kama/production/team/248545336.png" 
+                             class="bot-avatar">
+                        <span>FURIA_BOT</span>
+                    </div>
+                    <div class="message-bubble bot-bubble">
+                        ${content}
+                    </div>
+                `;
+                break;
+
+            case 'notification':
+                messageElement.innerHTML = `
+                    <div class="notification-message">
+                        ${content}
+                    </div>
+                `;
+                break;
+
+            case 'system':
+                messageElement.innerHTML = `
+                    <div class="system-message">
+                        ${content}
+                    </div>
+                `;
+                break;
+        }
+
+        historic.appendChild(messageElement);
+        historic.scrollTop = historic.scrollHeight;
+    }
+
+    // Função para enviar mensagem
+    function sendMessage() {
+        const message = input.value.trim();
+        if (!message) {
+            status.textContent = "Digite uma mensagem válida!";
             status.style.color = "#ff6b6b";
             setTimeout(() => status.textContent = "", 2000);
             return;
         }
         
-        status.textContent = "Processando...";
-        status.style.color = "#ffcc00";
-        btn.disabled = true;
-        input.disabled = true;
-        
         // Adiciona mensagem do usuário ao histórico
-        const userMsg = document.createElement('p');
-        userMsg.textContent = question;
-        historic.appendChild(userMsg);
+        addMessage(message, 'sent');
         
-        // Rola para a última mensagem
-        historic.scrollTop = historic.scrollHeight;
+        // Envia mensagem via WebSocket
+        socket.emit('message', { message: message });
         
-        input.value = "";
-        
-        try {
-            const response = await fetch("/api/pergunte", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ question: question })
-            });
-            
-            const data = await response.json();
-            
-            // Adiciona resposta do bot ao histórico
-            const botMsg = document.createElement('p');
-            botMsg.textContent = data.response;
-            
-            // Pequeno atraso para efeito de digitação
-            setTimeout(() => {
-                historic.appendChild(botMsg);
-                historic.scrollTop = historic.scrollHeight;
-            }, 500);
-            
-        } catch (error) {
-            console.error("Erro:", error);
-            const errorMsg = document.createElement('p');
-            errorMsg.textContent = "Desculpe, ocorreu um erro. Tente novamente mais tarde.";
-            errorMsg.style.color = "#ff6b6b";
-            historic.appendChild(errorMsg);
-        } finally {
-            status.textContent = "";
-            btn.disabled = false;
-            input.disabled = false;
-            input.focus();
+        // Mostra status de processamento se for para o bot
+        if (message.startsWith('@FuriaBot')) {
+            status.textContent = "Processando...";
+            status.style.color = "#ffcc00";
         }
-    }
 
-    btn.addEventListener('click', sendQuestion);
+        input.value = "";
+    }
+    
+
+    // Event listeners do WebSocket
+    socket.on('connect', () => {
+        addMessage('Conectado ao chat!', 'system');
+    });
+
+    socket.on('user_message', (data) => {
+        // Mensagens de outros usuários
+        if (data.sender_id !== socket.id) {
+            addMessage(data.message, 'received');
+        }
+    });
+
+    socket.on('bot_message', (data) => {
+        status.textContent = "";
+        addMessage(data.response, 'bot');
+    });
+
+    socket.on('system_message', (data) => {
+        if (data.type === 'notification') {
+            addMessage(data.message, 'notification');
+        } else {
+            addMessage(data.message, 'system');
+        }
+    });
+
+    socket.on('disconnect', () => {
+        addMessage('Desconectado do servidor', 'system');
+    });
+
+    // Event listeners da UI
+    btn.addEventListener('click', sendMessage);
     
     input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') sendQuestion();
+        if (e.key === 'Enter') sendMessage();
     });
+
+    // Mensagem de boas-vindas inicial
+    addMessage('Bem-vindo ao chat da FURIA! Digite @FuriaBot para interagir com nosso assistente.', 'system');
 });

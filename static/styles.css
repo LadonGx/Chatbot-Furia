@@ -1,7 +1,7 @@
 :root {
     --furia-black: #000000;
     --furia-white: #ffffff;
-    --furia-beige: #f5f5f0; 
+    --furia-beige: #f5f5f0;
     --furia-gray: #e8e8e8;
     --accent: #000000;
 }
@@ -68,57 +68,89 @@ body {
     background-color: var(--furia-white);
 }
 
-#historic p {
-    margin: 0;
-    padding: 12px 15px;
-    border-radius: 12px;
-    max-width: 80%;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    position: relative;
+/* Estilos base para mensagens */
+.message-bubble {
+    padding: 10px 15px;
+    border-radius: 18px;
+    display: inline-block;
+    max-width: 100%;
     word-wrap: break-word;
 }
 
-/* Mensagens do usuário */
-#historic p:nth-child(odd) {
+/* Mensagens enviadas */
+.sent {
+    align-self: flex-end;
+    text-align: right;
+    margin-right: 15px;
+}
+
+.sent-bubble {
     background-color: var(--furia-black);
     color: var(--furia-white);
+    border-bottom-right-radius: 5px;
+}
+
+/* Mensagens recebidas */
+.received {
     align-self: flex-start;
     text-align: left;
-    border-bottom-left-radius: 5px;
     margin-left: 15px;
 }
 
-/* Mensagens do bot - com logo da FURIA */
-#historic p:nth-child(even) {
-    background-color: var(--furia-gray); /* Fundo cinza claro para mensagens do bot */
+.received-bubble {
+    background-color: var(--furia-gray);
     color: var(--furia-black);
-    align-self: flex-end;
-    text-align: right;
-    border-bottom-right-radius: 5px;
-    margin-right: 15px;
-    border: 1px solid var(--furia-black);
-    padding-right: 40px; /* Espaço para o logo */
-    position: relative;
+    border-bottom-left-radius: 5px;
 }
 
-/* Adicionando o logo da FURIA nas mensagens do bot */
-#historic p:nth-child(even)::after {
-    content: "";
-    position: absolute;
-    right: -15px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
-    background-image: url('https://kingsleague.pro/_ipx/s_256x256/kama/production/team/248545336.png');
-    background-size: contain;
-    background-repeat: no-repeat;
+/* Mensagens do bot */
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.bot-avatar {
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: 2px solid var(--furia-black);
-    background-color: var(--furia-white);
 }
 
+.bot-bubble {
+    background-color: #f0f0f0;
+    color: var(--furia-black);
+    border-radius: 0 18px 18px 18px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Mensagens do sistema e notificações */
+.system-message, .notification-message {
+    text-align: center;
+    color: #666;
+    font-size: 0.85em;
+    margin: 10px 0;
+    padding: 8px;
+    font-style: italic;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+}
+
+/* Mensagem de boas-vindas */
+.welcome-message {
+    display: block;
+    text-align: center;
+    color: var(--furia-black);
+    opacity: 0.8;
+    font-size: 0.9rem;
+    border-bottom: 1px dashed var(--furia-black);
+    margin: 10px auto;
+    padding: 10px;
+}
+
+/* Footer e input */
 .footer {
     background-color: var(--furia-white);
     padding: 1rem;
@@ -169,7 +201,7 @@ input:focus {
     transform: translateY(1px);
 }
 
-/* Scrollbar styling */
+/* Scrollbar */
 #historic::-webkit-scrollbar {
     width: 8px;
 }
@@ -183,16 +215,3 @@ input:focus {
     background-color: var(--furia-black);
     border-radius: 10px;
 }
-
-/* Mensagem de boas-vindas */
-.welcome-message {
-    background-color: transparent !important;
-    text-align: center !important;
-    color: var(--furia-black) !important;
-    font-size: 0.9rem !important;
-    border-bottom: 1px dashed var(--furia-black) !important;
-    border-radius: 0 !important;
-    margin: 10px auto !important;
-    max-width: 100% !important;
-}
-
