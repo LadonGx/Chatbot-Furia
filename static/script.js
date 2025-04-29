@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'bot':
                 messageElement.innerHTML = `
                     <div class="message-header">
-                        <img src="https://kingsleague.pro/_ipx/s_256x256/kama/production/team/248545336.png" 
+                        <img src="https://upload.wikimedia.org/wikipedia/pt/f/f9/Furia_Esports_logo.png" 
                              class="bot-avatar">
                         <span>FURIA_BOT</span>
                     </div>
@@ -91,7 +91,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         input.value = "";
     }
-    
+
+    //Função para limpar o historico
+    function clearChatHistory() {
+        historic.innerHTML = '';
+        // Mensagem de boas-vindas inicial
+        addMessage('Bem-vindo ao chat da FURIA! Digite @FuriaBot para interagir com nosso assistente.', 'system');
+    }
 
     // Event listeners do WebSocket
     socket.on('connect', () => {

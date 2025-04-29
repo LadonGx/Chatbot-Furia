@@ -1,0 +1,67 @@
+{
+    "elenco": [
+        {
+            "nome": "FalleN",
+            "perfil": "https://www.hltv.org/player/2023/fallen"
+        },
+        {
+            "nome": "yuurih",
+            "perfil": "https://www.hltv.org/player/12553/yuurih"
+        },
+        {
+            "nome": "YEKINDAR",
+            "perfil": "https://www.hltv.org/player/13915/yekindar"
+        },
+        {
+            "nome": "KSCERATO",
+            "perfil": "https://www.hltv.org/player/15631/kscerato"
+        },
+        {
+            "nome": "molodoy",
+            "perfil": "https://www.hltv.org/player/24144/molodoy"
+        }
+    ],
+    "ranking": "Valve rankingBeta#18",
+    "partidas_recentes": [
+        {
+            "adversario": "The MongolZ",
+            "resultado": "0-2"
+        },
+        {
+            "adversario": "Virtus.pro",
+            "resultado": "0-2"
+        },
+        {
+            "adversario": "Complexity",
+            "resultado": "1-2"
+        },
+        {
+            "adversario": "Betclic",
+            "resultado": "2-0"
+        },
+        {
+            "adversario": "M80",
+            "resultado": "1-2"
+        },
+        {
+            "adversario": "Natus Vincere",
+            "resultado": "0-2"
+        },
+        {
+            "adversario": "Falcons",
+            "resultado": "1-2"
+        },
+        {
+            "adversario": "MIBR",
+            "resultado": "2-1"
+        },
+        {
+            "adversario": "Liquid",
+            "resultado": "0-2"
+        },
+        {
+            "adversario": "MOUZ",
+            "resultado": "1-2"
+        }
+    ]
+}

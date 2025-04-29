@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>FURIA Chatbot | CS:GO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-container">
+        <h1>FURIA CHATBOT</h1>
+        <p>Converse sobre o time de CS:GO, elenco, jogos e muito mais! #DIADEFURIA</p>
+
+        <div class="highlights">
+            <div class="card">
+                <h3>🔥 Elenco Atual</h3>
+                <ul>
+                    {% for jogador in elenco %}
+                    <li><a href="{{ jogador.perfil }}" target="_blank">{{ jogador.nome }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card">
+                <h3>🎮 Última Partida</h3>
+                <p>FURIA {{ proxima.resultado }} {{ proxima.adversario }}</p>
+            </div>
+        </div>
+
+        <div id="live-status" class="card">
+            <h3>🟢 Partida Ao Vivo</h3>
+            <p id="match-info">Carregando informações da partida...</p>
+        </div>
+
+        <a href="/chat" class="cta-button">ACESSAR CHATBOT</a>
+
+        <div class="whatsapp-cta">
+            <p>Experimente também o chat oficial da FURIA:</p>
+            <a href="https://wa.me/5511993404466" target="_blank">
+                <img src="whatsapp-icon.png" alt="WhatsApp da FURIA">
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        socket.on('live_status', (data) => {
+            document.getElementById('match-info').textContent = data.info;
+        });
+    </script>
+</body>
+</html>
