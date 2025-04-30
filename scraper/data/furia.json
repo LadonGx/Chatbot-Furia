@@ -2,66 +2,68 @@
     "elenco": [
         {
             "nome": "FalleN",
-            "perfil": "https://www.hltv.org/player/2023/fallen"
+            "nickname": "FalleN",
+            "perfil": "https://www.hltv.org/player/2023/fallen",
+            "player_id": "2023"
         },
         {
             "nome": "yuurih",
-            "perfil": "https://www.hltv.org/player/12553/yuurih"
+            "nickname": "yuurih",
+            "perfil": "https://www.hltv.org/player/12553/yuurih",
+            "player_id": "12553"
         },
         {
             "nome": "YEKINDAR",
-            "perfil": "https://www.hltv.org/player/13915/yekindar"
+            "nickname": "YEKINDAR",
+            "perfil": "https://www.hltv.org/player/13915/yekindar",
+            "player_id": "13915"
         },
         {
             "nome": "KSCERATO",
-            "perfil": "https://www.hltv.org/player/15631/kscerato"
+            "nickname": "KSCERATO",
+            "perfil": "https://www.hltv.org/player/15631/kscerato",
+            "player_id": "15631"
         },
         {
             "nome": "molodoy",
-            "perfil": "https://www.hltv.org/player/24144/molodoy"
+            "nickname": "molodoy",
+            "perfil": "https://www.hltv.org/player/24144/molodoy",
+            "player_id": "24144"
         }
     ],
     "ranking": "Valve rankingBeta#18",
     "partidas_recentes": [
         {
             "adversario": "The MongolZ",
-            "resultado": "0-2"
+            "resultado": "0-2",
+            "campeonato": "PGL Bucharest 2025",
+            "status": "completed"
         },
         {
             "adversario": "Virtus.pro",
-            "resultado": "0-2"
+            "resultado": "0-2",
+            "campeonato": "PGL Bucharest 2025",
+            "status": "completed"
         },
         {
             "adversario": "Complexity",
-            "resultado": "1-2"
+            "resultado": "1-2",
+            "campeonato": "PGL Bucharest 2025",
+            "status": "completed"
         },
         {
             "adversario": "Betclic",
-            "resultado": "2-0"
+            "resultado": "2-0",
+            "campeonato": "PGL Bucharest 2025",
+            "status": "completed"
         },
         {
             "adversario": "M80",
-            "resultado": "1-2"
-        },
-        {
-            "adversario": "Natus Vincere",
-            "resultado": "0-2"
-        },
-        {
-            "adversario": "Falcons",
-            "resultado": "1-2"
-        },
-        {
-            "adversario": "MIBR",
-            "resultado": "2-1"
-        },
-        {
-            "adversario": "Liquid",
-            "resultado": "0-2"
-        },
-        {
-            "adversario": "MOUZ",
-            "resultado": "1-2"
+            "resultado": "1-2",
+            "campeonato": "BLAST Open Lisbon 2025",
+            "status": "completed"
         }
-    ]
+    ],
+    "partidas_futuras": [],
+    "ultima_atualizacao": "2025-04-30T11:00:45.895010"
 }

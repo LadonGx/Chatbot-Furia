@@ -23,6 +23,19 @@ def carregar_dados_furia():
     try:
         with open(caminho_json, 'r', encoding='utf-8') as f:
             dados = json.load(f)
+        
+        # Processa cada jogador para adicionar a URL da imagem
+        for jogador in dados.get("elenco", []):
+            # Usa o ID do jogador para construir a URL da imagem da HLTV
+            player_id = jogador.get('player_id', '')
+            if player_id:
+                jogador['foto'] = f"https://www.hltv.org/img/static/player/player_{player_id}.png"
+            else:
+                jogador['foto'] = url_for('static', filename='images/default_player.png')
+            
+            # Garante que nickname existe
+            jogador['nickname'] = jogador.get('nickname', jogador['nome'].split()[0])
+        
         return dados
     except FileNotFoundError:
         print(f"Arquivo {caminho_json} não encontrado.")
@@ -34,15 +47,16 @@ def carregar_dados_furia():
 dados_furia = carregar_dados_furia()
 
 if dados_furia:
-    elenco = ", ".join([player['nome'] for player in dados_furia.get('elenco', [])])
+    elenco = ", ".join([player.get('nome', 'Jogador') for player in dados_furia.get('elenco', [])])
     ranking = dados_furia.get('ranking', 'Ranking desconhecido')
-    partidas = dados_furia.get('partidas_recentes')
+    partidas = dados_furia.get('partidas_recentes', [])
     
     system_context = f"""
     Você é o FURIA_BOT, assistente virtual oficial da FURIA Esports (Counter-Strike).
     Seu tom deve ser energético, competitivo e cheio de atitude, refletindo o espírito da FURIA.
 
     Regras importantes:
+    -Não utilize muitos **
     - Mantenha respostas curtas e impactantes quando possível
     - Use gírias de CS:GO quando apropriado (ex: "clutch", "ace", "entry")
     - Mostre paixão pelo time e pelo jogo
@@ -57,23 +71,19 @@ if dados_furia:
     Responda como um verdadeiro fã da FURIA, com a energia que representa a torcida #DIADEFURIA
     """
 else:
-    # fallback se der erro
     system_context = """
     Você é o FURIA_BOT, assistente virtual oficial da FURIA Esports (Counter-Strike).
-    Seu tom deve ser energético, competitivo e cheio de atitude, refletindo o espírito da FURIA.
-
+    Seu tom deve ser energético, competitivo e cheio de atitude.
     (Informações atualizadas do time indisponíveis no momento.)
     """
 
 def pergunte(question: str, sid: str) -> str:
     try:
-        # Inicializa o histórico da sessão se não existir
         if sid not in historico_conversa:
             historico_conversa[sid] = [
                 {"role": "system", "content": system_context}
             ]
         
-        # Adiciona a pergunta ao histórico
         historico_conversa[sid].append({"role": "user", "content": question})
         
         completion = client.chat.completions.create(
@@ -86,39 +96,55 @@ def pergunte(question: str, sid: str) -> str:
             temperature=0.7
         )
         
-        print(f"DEBUG - Resposta da API: {completion}")
-        
         if not completion or not completion.choices:
             return "Puxa, tive um problema ao processar sua pergunta. Tente novamente! #DIADEFURIA"
         
         response = completion.choices[0].message.content
-        
-        # Adiciona a resposta ao histórico
         historico_conversa[sid].append({"role": "assistant", "content": response})
-        historico_conversa[sid] = historico_conversa[sid][-10:]  # Mantém apenas as últimas 10 mensagens
+        historico_conversa[sid] = historico_conversa[sid][-10:]
         
         return response
         
     except Exception as e:
-        print(f"ERRO NA API - Detalhes: {str(e)}")
+        print(f"ERRO NA API: {str(e)}")
         return f"Estou com problemas técnicos! Erro: {str(e)} 🛠️ #DIADEFURIA"
 
 @app.route("/")
 def homepage():
     dados = carregar_dados_furia() or {}
     elenco = dados.get("elenco", [])
+    
+    # Processa cada jogador
+    for jogador in elenco:
+        nickname = jogador.get("nickname", "").lower()
+        # Verifica se a imagem existe na pasta static/images/players
+        image_path = os.path.join(app.static_folder, 'images', 'players', f"{nickname}.png")
+        if os.path.exists(image_path):
+            jogador['foto'] = url_for('static', filename=f'images/players/{nickname}.png')
+        else:
+            jogador['foto'] = url_for('static', filename='images/default_player.png')
+        
+        jogador['perfil'] = jogador.get('perfil', 'https://furia.gg/team')
+
+    # Processa a próxima partida
     partidas = dados.get("partidas_recentes", [])
-    proxima = partidas[0] if partidas else {"adversario": "Desconhecido", "resultado": "?"}
+    proxima = {
+        "adversario": "Desconhecido",
+        "resultado": "?",
+        "data": "Em breve",
+        "campeonato": "Campeonato não definido"
+    }
+    if partidas:
+        proxima.update(partidas[0])
 
     return render_template("landing.html", elenco=elenco, proxima=proxima)
 
-# Página atual do chatbot
 @app.route("/chat")
 def chat():
     return render_template("index.html")
+
 active_sessions = set()
 
-# Notifica todos sobre novo usuário
 @socketio.on('connect')
 def handle_connect():
     active_sessions.add(request.sid)
@@ -128,9 +154,10 @@ def handle_connect():
         'type': 'notification'
     }, skip_sid=request.sid)
 
-#Função para o disconnect
 @socketio.on('disconnect')
 def handle_disconnect():
+    if request.sid in historico_conversa:
+        del historico_conversa[request.sid]
     active_sessions.discard(request.sid)
     print(f"Cliente desconectado: {request.sid}")
     socketio.emit('system_message', {
@@ -153,7 +180,7 @@ def handle_message(data):
                 'sender_id': request.sid
             }, to=request.sid)
             
-            response = pergunte(question, request.sid)  # Passa o SID da sessão
+            response = pergunte(question, request.sid)
             socketio.emit('bot_message', {
                 'response': response,
                 'question': question
@@ -163,18 +190,6 @@ def handle_message(data):
             'message': message,
             'sender_id': request.sid
         }, skip_sid=request.sid)
-
-#Limpa Historico quando desconectar
-@socketio.on('disconnect')
-def handle_disconnect():
-    if request.sid in historico_conversa:
-        del historico_conversa[request.sid]
-    active_sessions.discard(request.sid)
-    print(f"Cliente desconectado: {request.sid}")
-    socketio.emit('system_message', {
-        'message': 'Um usuário saiu do chat.',
-        'type': 'notification'
-    })
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

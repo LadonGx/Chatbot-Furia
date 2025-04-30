@@ -2,51 +2,149 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FURIA Chatbot | CS:GO</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/furia_logo.png') }}">
 </head>
 <body>
-    <div class="landing-container">
-        <h1>FURIA CHATBOT</h1>
-        <p>Converse sobre o time de CS:GO, elenco, jogos e muito mais! #DIADEFURIA</p>
+    <header class="furia-header">
+        <div class="header-main">
+            <div class="container">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='images/furia_logo.png') }}" alt="FURIA Logo" loading="lazy">
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/">HOME</a></li>
+                        <li><a href="/chat">CHATBOT</a></li>
+                        <li><a href="https://www.furia.gg" target="_blank" rel="noopener noreferrer">LOJA</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
-        <div class="highlights">
-            <div class="card">
-                <h3>🔥 Elenco Atual</h3>
+        <div class="header-top">
+            <div class="container">
+                <div class="next-match-container">
+                    <h3>PRÓXIMO JOGO</h3>
+                    <div class="next-match-header">
+                        <div class="teams-container">
+                            <div class="team furia">
+                                <img src="{{ url_for('static', filename='images/furia_logo.png') }}" alt="FURIA" loading="lazy">
+                                <div class="team-info">
+                                    <span class="team-name">FURIA</span>
+                                    {% if proxima.status == "completed" %}
+                                    <span class="score">{{ proxima.resultado.split('-')[0]|trim }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team opponent">
+                                {% if proxima.logo_adversario %}
+                                    <img src="{{ proxima.logo_adversario }}" alt="{{ proxima.adversario }}" loading="lazy" class="opponent-logo">
+                                {% endif %}
+                                <div class="team-info">
+                                    <span class="team-name">{{ proxima.adversario }}</span>
+                                    {% if proxima.status == "completed" %}
+                                    <span class="score">{{ proxima.resultado.split('-')[1]|trim }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if proxima.status == "live" %}
+                                    <span class="live-badge">AO VIVO</span>
+                                {% elif proxima.status == "upcoming" %}
+                                    <span class="upcoming-badge">EM BREVE</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="match-info">
+                            <p><i class="far fa-calendar-alt"></i> {{ proxima.data or "Em breve" }}</p>
+                            <p><i class="fas fa-trophy"></i> {{ proxima.campeonato }}</p>
+                            {% if proxima.link_transmissao %}
+                            <a href="{{ proxima.link_transmissao }}" target="_blank" class="watch-link">
+                                <i class="fas fa-play"></i> Assistir
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>FURIA <span>CHATBOT</span></h1>
+                <p class="subtitle">TUDO SOBRE O TIME DE CS2 NA PONTA DA SUA LÍNGUA</p>
+                
+                <div class="cta-container">
+                    <a href="/chat" class="cta-button">
+                        CONVERSE COM O BOT <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <div class="social-icons">
+                        <a href="https://twitter.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
+                        <a href="https://instagram.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        <a href="https://youtube.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="team-section">
+        <div class="container">
+            <h2>ELENCO ATUAL</h2>
+            <div class="players-grid">
+                {% for jogador in elenco %}
+                <div class="player-card">
+                    <div class="player-image-container">
+                        <img src="{{ jogador.foto }}" 
+                             alt="{{ jogador.nome }}" 
+                             class="player-image" 
+                             loading="lazy">
+                    </div>
+                    <h3>{{ jogador.nome }}</h3>
+                    <p>{{ jogador.nickname }}</p>
+                    <a href="{{ jogador.perfil }}" target="_blank" rel="noopener noreferrer" class="player-profile">
+                        VER PERFIL <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="furia-footer">
+        <div class="container">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='images/furia_logo.png') }}" alt="FURIA Logo" loading="lazy">
+            </div>
+            <div class="footer-links">
                 <ul>
-                    {% for jogador in elenco %}
-                    <li><a href="{{ jogador.perfil }}" target="_blank">{{ jogador.nome }}</a></li>
-                    {% endfor %}
+                    <li><a href="https://furia.gg/termos" target="_blank" rel="noopener noreferrer">Termos de Uso</a></li>
+                    <li><a href="https://furia.gg/privacidade" target="_blank" rel="noopener noreferrer">Política de Privacidade</a></li>
+                    <li><a href="https://furia.gg/contato" target="_blank" rel="noopener noreferrer">Contato</a></li>
                 </ul>
             </div>
-            <div class="card">
-                <h3>🎮 Última Partida</h3>
-                <p>FURIA {{ proxima.resultado }} {{ proxima.adversario }}</p>
+            <div class="footer-social">
+                <p>SIGA A FURIA</p>
+                <div class="social-icons">
+                    <a href="https://twitter.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
+                    <a href="https://instagram.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                    <a href="https://youtube.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                    <a href="https://twitch.tv/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitch"></i></a>
+                </div>
             </div>
         </div>
-
-        <div id="live-status" class="card">
-            <h3>🟢 Partida Ao Vivo</h3>
-            <p id="match-info">Carregando informações da partida...</p>
+        <div class="copyright">
+            <p>© 2023 FURIA. TODOS OS DIREITOS RESERVADOS.</p>
         </div>
+    </footer>
 
-        <a href="/chat" class="cta-button">ACESSAR CHATBOT</a>
-
-        <div class="whatsapp-cta">
-            <p>Experimente também o chat oficial da FURIA:</p>
-            <a href="https://wa.me/5511993404466" target="_blank">
-                <img src="whatsapp-icon.png" alt="WhatsApp da FURIA">
-            </a>
-        </div>
-    </div>
-
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script>
-        const socket = io();
-        socket.on('live_status', (data) => {
-            document.getElementById('match-info').textContent = data.info;
-        });
-    </script>
+    <!-- REMOVER EM PRODUÇÃO -->
+    <a href="/?test_live=1" class="test-live">TESTAR AO VIVO</a>
 </body>
 </html>

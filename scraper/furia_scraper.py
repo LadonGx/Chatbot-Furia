@@ -2,13 +2,57 @@ import cloudscraper
 from bs4 import BeautifulSoup
 import json
 import os
+from datetime import datetime
 
 # URL da página da FURIA na HLTV
 URL = "https://www.hltv.org/team/8297/furia"
 
+def get_upcoming_matches(scraper, modo_teste=False):
+    url = "https://www.hltv.org/matches"
+    response = scraper.get(url)
+    if response.status_code != 200:
+        return []
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    matches = []
+    
+    match_containers = soup.find_all('div', class_=['upcoming-match', 'live-match'])
+    
+    for match in match_containers:
+        team1 = match.find('div', class_='team1')
+        team2 = match.find('div', class_='team2')
+        event = match.find('div', class_='event')
+        time = match.find('div', class_='time')
+        
+        if team1 and team2:
+            team1_name = team1.get_text(strip=True)
+            team2_name = team2.get_text(strip=True)
+
+            # Modo teste pega qualquer partida, normal só FURIA
+            if modo_teste or 'FURIA' in team1_name or 'FURIA' in team2_name:
+                status = "live" if 'live' in match.get('class', []) else "upcoming"
+                print(f"🎯 Match encontrado: {team1_name} vs {team2_name} ({status})")
+
+                match_data = {
+                    "adversario": team2_name if 'FURIA' in team1_name else team1_name,
+                    "data": time.get_text(strip=True) if time else "Em breve",
+                    "campeonato": event.get_text(strip=True) if event else "Campeonato não definido",
+                    "status": status,
+                    "timestamp": int(datetime.now().timestamp())
+                }
+
+                opponent_team = team2 if 'FURIA' in team1_name else team1
+                opponent_img = opponent_team.find('img')
+                if opponent_img and 'src' in opponent_img.attrs:
+                    match_data["logo_adversario"] = "https://www.hltv.org" + opponent_img['src']
+                
+                matches.append(match_data)
+
+    matches.sort(key=lambda x: (0 if x['status'] == 'live' else 1, x['timestamp']))
+    return matches[:5]
+
 def scrape_furia():
     scraper = cloudscraper.create_scraper()
-
     response = scraper.get(URL)
     if response.status_code != 200:
         print(f"Erro ao acessar a HLTV: {response.status_code}")
@@ -16,7 +60,7 @@ def scrape_furia():
 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    # --- Elenco ---
+    # --- Elenco --- 
     elenco = []
     bodyshot_section = soup.find('div', class_='bodyshot-team')
     if bodyshot_section:
@@ -24,20 +68,27 @@ def scrape_furia():
         for player_link in players_links:
             nome = player_link.get('title', '').strip()
             perfil = "https://www.hltv.org" + player_link.get('href')
+            nickname = player_link.find('div', class_='nickname')
+            nickname = nickname.get_text(strip=True) if nickname else nome.split()[0]
+            
+            player_id = player_link.get('href').split('/')[-2] if player_link.get('href') else ''
+            
             if nome:
                 elenco.append({
                     "nome": nome,
-                    "perfil": perfil
+                    "nickname": nickname,
+                    "perfil": perfil,
+                    "player_id": player_id
                 })
 
-    # --- Ranking e estatísticas ---
+    #Ranking e estatísticas
     ranking_section = soup.find('div', class_='profile-team-stat')
     if ranking_section:
         ranking = ranking_section.get_text(strip=True)
     else:
         ranking = "Não encontrado"
 
-    # --- Partidas recentes ---
+    #Partidas recentes
     partidas = []
     matches_url = "https://www.hltv.org/results?team=8297"
     matches_response = scraper.get(matches_url)
@@ -45,24 +96,32 @@ def scrape_furia():
         matches_soup = BeautifulSoup(matches_response.text, 'html.parser')
         match_containers = matches_soup.find_all('div', class_='result-con')
 
-        for match in match_containers[:10]:  # Últimas 10 partidas
+        for match in match_containers[:5]:  # Últimas 5 partidas
             teams = match.find_all('div', class_='team')
             scores = match.find('td', class_='result-score')
-
+            event = match.find('span', class_='event-name')
+            
             if len(teams) == 2 and scores:
                 partidas.append({
                     "adversario": teams[1].get_text(strip=True),
-                    "resultado": scores.get_text(strip=True)
+                    "resultado": scores.get_text(strip=True),
+                    "campeonato": event.get_text(strip=True) if event else "Campeonato não definido",
+                    "status": "completed"
                 })
 
-    # --- Organizando dados ---
+    #Partidas futuras/ao vivo
+    partidas_futuras = get_upcoming_matches(scraper, modo_teste=True)
+
+    #Organizando dados
     furia_data = {
         "elenco": elenco,
         "ranking": ranking,
-        "partidas_recentes": partidas
+        "partidas_recentes": partidas,
+        "partidas_futuras": partidas_futuras,
+        "ultima_atualizacao": datetime.now().isoformat()
     }
 
-    # --- Salvando em JSON na pasta /data ---
+    #Salvando em JSON
     output_dir = os.path.join(os.path.dirname(__file__), 'data')
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, 'furia.json')
