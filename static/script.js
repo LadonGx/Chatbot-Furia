@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const btn = document.getElementById('btn-submit');
     const historic = document.getElementById('historic');
     const status = document.getElementById('status');
-    const usernameDisplay = document.getElementById('username-display');
 
     // Conecta ao WebSocket
     const socket = io();
@@ -134,7 +133,4 @@ document.addEventListener('DOMContentLoaded', function() {
     input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') sendMessage();
     });
-
-    // Mensagem de boas-vindas inicial
-    addMessage('Bem-vindo ao chat da FURIA! Digite @FuriaBot para interagir com nosso assistente.', 'system');
 });

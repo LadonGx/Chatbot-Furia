@@ -1,8 +1,9 @@
 flask
 openai
 python-dotenv
-flask-sqlalchemy
 beautifulsoup4
 requests
 apscheduler
 cloudscraper==1.2.60
+flask-socketio
+eventlet
