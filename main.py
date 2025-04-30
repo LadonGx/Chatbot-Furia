@@ -113,29 +113,50 @@ def pergunte(question: str, sid: str) -> str:
 def homepage():
     dados = carregar_dados_furia() or {}
     elenco = dados.get("elenco", [])
-    
-    # Processa cada jogador
+
+    # Lógica de imagem por jogador (mantida)
     for jogador in elenco:
         nickname = jogador.get("nickname", "").lower()
-        # Verifica se a imagem existe na pasta static/images/players
         image_path = os.path.join(app.static_folder, 'images', 'players', f"{nickname}.png")
         if os.path.exists(image_path):
             jogador['foto'] = url_for('static', filename=f'images/players/{nickname}.png')
         else:
             jogador['foto'] = url_for('static', filename='images/default_player.png')
-        
-        jogador['perfil'] = jogador.get('perfil', 'https://furia.gg/team')
 
-    # Processa a próxima partida
-    partidas = dados.get("partidas_recentes", [])
-    proxima = {
-        "adversario": "Desconhecido",
-        "resultado": "?",
-        "data": "Em breve",
-        "campeonato": "Campeonato não definido"
-    }
-    if partidas:
-        proxima.update(partidas[0])
+    partidas = dados.get("partidas_futuras", [])
+    partidas_recentes = dados.get("partidas_recentes", [])
+
+    proxima = None
+
+    # Verifica se existe uma partida ao vivo
+    live = next((p for p in partidas if p.get("status") == "live"), None)
+    if live:
+        proxima = live
+    else:
+        # Se não tem ao vivo, procura uma futura
+        upcoming = next((p for p in partidas if p.get("status") == "upcoming"), None)
+        if upcoming:
+            proxima = upcoming
+        elif partidas_recentes:
+            # Se não tem ao vivo nem futura, pega a última jogada
+            ultima = partidas_recentes[0]
+            proxima = {
+                "adversario": ultima.get("adversario", "Desconhecido"),
+                "resultado": ultima.get("resultado", "?"),
+                "data": "Último jogo",
+                "campeonato": ultima.get("campeonato", "Campeonato não definido"),
+                "status": "completed",
+                "logo_adversario": ""  # opcional: buscar imagem se quiser
+            }
+        else:
+            # fallback padrão
+            proxima = {
+                "adversario": "Desconhecido",
+                "resultado": "?",
+                "data": "Em breve",
+                "campeonato": "Campeonato não definido",
+                "status": "upcoming"
+            }
 
     return render_template("landing.html", elenco=elenco, proxima=proxima)
 

@@ -44,12 +44,58 @@ def get_upcoming_matches(scraper, modo_teste=False):
                 opponent_team = team2 if 'FURIA' in team1_name else team1
                 opponent_img = opponent_team.find('img')
                 if opponent_img and 'src' in opponent_img.attrs:
-                    match_data["logo_adversario"] = "https://www.hltv.org" + opponent_img['src']
+                    match_data["logo_adversario"] = "https://www.hltv.org/matches/2381321/furia-vs-the-mongolz-pgl-bucharest-2025" + opponent_img['src']
                 
                 matches.append(match_data)
 
     matches.sort(key=lambda x: (0 if x['status'] == 'live' else 1, x['timestamp']))
     return matches[:5]
+
+def get_live_match_details(scraper, match_id):
+    """Busca detalhes específicos de uma partida ao vivo"""
+    url = f"https://www.hltv.org/live{match_id}/_"
+    response = scraper.get(url)
+    if response.status_code != 200:
+        return None
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    # Obter times
+    team1 = soup.find('div', class_='team1-gradient')
+    team2 = soup.find('div', class_='team2-gradient')
+    
+    if not team1 or not team2:
+        return None
+    
+    team1_name = team1.find('div', class_='teamName').get_text(strip=True) if team1 else None
+    team2_name = team2.find('div', class_='teamName').get_text(strip=True) if team2 else None
+    
+    # Obter placar
+    score_team1 = team1.find('div', class_='currentMapScore').get_text(strip=True) if team1.find('div', class_='currentMapScore') else '0'
+    score_team2 = team2.find('div', class_='currentMapScore').get_text(strip=True) if team2.find('div', class_='currentMapScore') else '0'
+    
+    # Obter mapa atual
+    current_map = soup.find('div', class_='mapname-holder').get_text(strip=True) if soup.find('div', class_='mapname-holder') else 'Mapa desconhecido'
+    
+    # Obter evento/torneio
+    event = soup.find('div', class_='event').get_text(strip=True) if soup.find('div', class_='event') else 'Evento desconhecido'
+    
+    # Obter link da transmissão
+    stream_link = None
+    stream_div = soup.find('div', class_='stream-box')
+    if stream_div and stream_div.find('a'):
+        stream_link = stream_div.find('a')['href']
+    
+    return {
+        "adversario": team2_name if 'FURIA' in team1_name else team1_name,
+        "resultado": f"{score_team1}-{score_team2}",
+        "data": "AO VIVO AGORA",
+        "campeonato": event,
+        "status": "live",
+        "current_map": current_map,
+        "logo_adversario": f"https://www.hltv.org{team2.find('img')['src']}" if 'FURIA' in team1_name and team2.find('img') else f"https://www.hltv.org{team1.find('img')['src']}" if team1.find('img') else None,
+        "link_transmissao": stream_link
+    }
 
 def scrape_furia():
     scraper = cloudscraper.create_scraper()
@@ -110,7 +156,7 @@ def scrape_furia():
                 })
 
     #Partidas futuras/ao vivo
-    partidas_futuras = get_upcoming_matches(scraper, modo_teste=True)
+    partidas_futuras = get_upcoming_matches(scraper, modo_teste=False)
 
     #Organizando dados
     furia_data = {

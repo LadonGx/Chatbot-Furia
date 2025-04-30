@@ -236,6 +236,16 @@ body {
     animation: pulse 1.5s infinite;
 }
 
+.match-info p i.fa-map {
+    color: var(--furia-yellow);
+}
+
+.current-map {
+    font-weight: bold;
+    color: var(--furia-yellow);
+    margin-top: 5px;
+}
+
 .upcoming-badge {
     background-color: var(--furia-yellow);
     color: var(--furia-black);
@@ -574,22 +584,6 @@ body {
     0% { opacity: 1; }
     50% { opacity: 0.7; }
     100% { opacity: 1; }
-}
-
-/* Test Live Button - REMOVER EM PRODUÇÃO */
-.test-live {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    background-color: var(--furia-red);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 0.9rem;
 }
 
 /* Responsive Design */

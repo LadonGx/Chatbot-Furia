@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FURIA Chatbot | CS:GO</title>
+    <title>FURIA Chat | CS:GO</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,7 +19,7 @@
                 <nav>
                     <ul>
                         <li><a href="/">HOME</a></li>
-                        <li><a href="/chat">CHATBOT</a></li>
+                        <li><a href="/chat">CHAT</a></li>
                         <li><a href="https://www.furia.gg" target="_blank" rel="noopener noreferrer">LOJA</a></li>
                     </ul>
                 </nav>
@@ -36,7 +36,7 @@
                                 <img src="{{ url_for('static', filename='images/furia_logo.png') }}" alt="FURIA" loading="lazy">
                                 <div class="team-info">
                                     <span class="team-name">FURIA</span>
-                                    {% if proxima.status == "completed" %}
+                                    {% if proxima.status == "completed" or proxima.status == "live" %}
                                     <span class="score">{{ proxima.resultado.split('-')[0]|trim }}</span>
                                     {% endif %}
                                 </div>
@@ -48,7 +48,7 @@
                                 {% endif %}
                                 <div class="team-info">
                                     <span class="team-name">{{ proxima.adversario }}</span>
-                                    {% if proxima.status == "completed" %}
+                                    {% if proxima.status == "completed" or proxima.status == "live" %}
                                     <span class="score">{{ proxima.resultado.split('-')[1]|trim }}</span>
                                     {% endif %}
                                 </div>
@@ -62,10 +62,13 @@
                         <div class="match-info">
                             <p><i class="far fa-calendar-alt"></i> {{ proxima.data or "Em breve" }}</p>
                             <p><i class="fas fa-trophy"></i> {{ proxima.campeonato }}</p>
-                            {% if proxima.link_transmissao %}
-                            <a href="{{ proxima.link_transmissao }}" target="_blank" class="watch-link">
-                                <i class="fas fa-play"></i> Assistir
-                            </a>
+                            {% if proxima.status == "live" and proxima.current_map %}
+                                <p><i class="fas fa-map"></i> {{ proxima.current_map }}</p>
+                            {% endif %}
+                            {% if proxima.status == "live" %}
+                                <a href="https://www.hltv.org/matches" target="_blank" class="watch-link">
+                                    <i class="fas fa-play"></i> Assistir na HLTV
+                                </a>
                             {% endif %}
                         </div>
                     </div>
@@ -77,17 +80,17 @@
     <main class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <h1>FURIA <span>CHATBOT</span></h1>
+                <h1>FURIA <span>CS </span> CHAT</h1>
                 <p class="subtitle">TUDO SOBRE O TIME DE CS2 NA PONTA DA SUA LÍNGUA</p>
                 
                 <div class="cta-container">
                     <a href="/chat" class="cta-button">
-                        CONVERSE COM O BOT <i class="fas fa-arrow-right"></i>
+                        CONVERSE COM OUTROS FÃS <i class="fas fa-arrow-right"></i>
                     </a>
                     <div class="social-icons">
-                        <a href="https://twitter.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
+                        <a href="https://x.com/FURIA" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
                         <a href="https://instagram.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                        <a href="https://youtube.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.youtube.com/@fallenINSIDER/videos" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
             </div>
@@ -126,25 +129,22 @@
                 <ul>
                     <li><a href="https://furia.gg/termos" target="_blank" rel="noopener noreferrer">Termos de Uso</a></li>
                     <li><a href="https://furia.gg/privacidade" target="_blank" rel="noopener noreferrer">Política de Privacidade</a></li>
-                    <li><a href="https://furia.gg/contato" target="_blank" rel="noopener noreferrer">Contato</a></li>
+                    <li><a href="https://api.whatsapp.com/send/?phone=5511993404466&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer">Contato</a></li>
                 </ul>
             </div>
             <div class="footer-social">
                 <p>SIGA A FURIA</p>
                 <div class="social-icons">
-                    <a href="https://twitter.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
+                    <a href="https://x.com/FURIA" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
                     <a href="https://instagram.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    <a href="https://youtube.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                    <a href="https://www.youtube.com/@fallenINSIDER/videos" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
                     <a href="https://twitch.tv/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitch"></i></a>
                 </div>
             </div>
         </div>
         <div class="copyright">
-            <p>© 2023 FURIA. TODOS OS DIREITOS RESERVADOS.</p>
+            <p>© 2025 FURIA. TODOS OS DIREITOS RESERVADOS.</p>
         </div>
     </footer>
-
-    <!-- REMOVER EM PRODUÇÃO -->
-    <a href="/?test_live=1" class="test-live">TESTAR AO VIVO</a>
 </body>
 </html>
