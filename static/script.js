@@ -3,6 +3,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const btn = document.getElementById('btn-submit');
     const historic = document.getElementById('historic');
     const status = document.getElementById('status');
+    const helpText = document.querySelector('.help-text');
+    
+    const commandsContainer = document.querySelector('.commands-container');
+    if (commandsContainer) {
+        commandsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('command-item')) {
+                input.value = `@FuriaBot ${e.target.textContent}`;
+                input.focus();
+            }
+        });
+    }
 
     // Conecta ao WebSocket
     const socket = io();
@@ -65,6 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
         historic.appendChild(messageElement);
         historic.scrollTop = historic.scrollHeight;
     }
+    document.addEventListener('DOMContentLoaded', function() {
+    // Auto-completar comandos ao clicar no help-text
+    const helpText = document.querySelector('.help-text');
+    if (helpText) {
+        helpText.addEventListener('click', (e) => {
+            if (e.target.tagName === 'CODE') {
+                document.getElementById('message-input').value = `@FuriaBot ${e.target.textContent}`;
+            }
+        });
+    }
+});
 
     // Função para enviar mensagem
     function sendMessage() {

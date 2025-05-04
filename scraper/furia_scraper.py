@@ -8,47 +8,54 @@ from datetime import datetime
 URL = "https://www.hltv.org/team/8297/furia"
 
 def get_upcoming_matches(scraper, modo_teste=False):
-    url = "https://www.hltv.org/matches"
+    # Acessa a página específica da FURIA com a aba de partidas
+    url = "https://www.hltv.org/team/8297/furia#tab-matchesBox"
     response = scraper.get(url)
     if response.status_code != 200:
         return []
-    
+
     soup = BeautifulSoup(response.text, 'html.parser')
     matches = []
     
-    match_containers = soup.find_all('div', class_=['upcoming-match', 'live-match'])
+    # Encontra a seção "Upcoming matches" (usando o ID da div)
+    upcoming_section = soup.find('div', {'id': 'matchesBox'})
+    if not upcoming_section:
+        return []
+
+    # Extrai todas as linhas de partidas
+    match_rows = upcoming_section.find_all('div', class_='match')
     
-    for match in match_containers:
-        team1 = match.find('div', class_='team1')
-        team2 = match.find('div', class_='team2')
-        event = match.find('div', class_='event')
-        time = match.find('div', class_='time')
+    for row in match_rows:
+        # Extrai times
+        team1 = row.find('div', class_='team1')
+        team2 = row.find('div', class_='team2')
         
         if team1 and team2:
             team1_name = team1.get_text(strip=True)
             team2_name = team2.get_text(strip=True)
 
-            # Modo teste pega qualquer partida, normal só FURIA
+            # Filtra apenas partidas da FURIA (a menos que seja modo teste)
             if modo_teste or 'FURIA' in team1_name or 'FURIA' in team2_name:
-                status = "live" if 'live' in match.get('class', []) else "upcoming"
-                print(f"🎯 Match encontrado: {team1_name} vs {team2_name} ({status})")
-
+                # Extrai data e evento
+                time = row.find('div', class_='time')
+                event = row.find('div', class_='event')
+                
                 match_data = {
                     "adversario": team2_name if 'FURIA' in team1_name else team1_name,
                     "data": time.get_text(strip=True) if time else "Em breve",
                     "campeonato": event.get_text(strip=True) if event else "Campeonato não definido",
-                    "status": status,
+                    "status": "upcoming",
                     "timestamp": int(datetime.now().timestamp())
                 }
 
+                # Extrai logo do adversário (se existir)
                 opponent_team = team2 if 'FURIA' in team1_name else team1
                 opponent_img = opponent_team.find('img')
                 if opponent_img and 'src' in opponent_img.attrs:
-                    match_data["logo_adversario"] = "https://www.hltv.org/matches/2381321/furia-vs-the-mongolz-pgl-bucharest-2025" + opponent_img['src']
+                    match_data["logo_adversario"] = "https://www.hltv.org" + opponent_img['src']
                 
                 matches.append(match_data)
 
-    matches.sort(key=lambda x: (0 if x['status'] == 'live' else 1, x['timestamp']))
     return matches[:5]
 
 def get_live_match_details(scraper, match_id):
@@ -113,7 +120,7 @@ def scrape_furia():
         players_links = bodyshot_section.find_all('a')
         for player_link in players_links:
             nome = player_link.get('title', '').strip()
-            perfil = "https://www.hltv.org" + player_link.get('href')
+            perfil = "https://www.hltv.org/team/8297/furia" + player_link.get('href')
             nickname = player_link.find('div', class_='nickname')
             nickname = nickname.get_text(strip=True) if nickname else nome.split()[0]
             

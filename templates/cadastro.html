@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro | FURIA Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/furia_logo.png') }}">
+    <script>
+        function formatarCPF(campo) {
+            // Remove tudo que não é dígito
+            let cpf = campo.value.replace(/\D/g, "");
+            
+            // Adiciona os pontos e traço conforme o usuário digita
+            if (cpf.length > 3) {
+                cpf = cpf.substring(0, 3) + "." + cpf.substring(3);
+            }
+            if (cpf.length > 7) {
+                cpf = cpf.substring(0, 7) + "." + cpf.substring(7);
+            }
+            if (cpf.length > 11) {
+                cpf = cpf.substring(0, 11) + "-" + cpf.substring(11);
+            }
+            
+            // Limita a 14 caracteres (incluindo pontos e traço)
+            cpf = cpf.substring(0, 14);
+            
+            campo.value = cpf;
+        }
+    </script>
+</head>
+<body>
+<header class="furia-header">
+    <div class="header-main">
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/furia_logo.png') }}" alt="FURIA Logo">
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="/chat">CHAT</a></li>
+                    <li><a href="/login">LOGIN</a></li>
+                    <li><a href="/cadastro">CADASTRO</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main class="hero-section auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <h1 class="auth-title">JUNTE-SE À <span>FURIA</span></h1>
+            <p class="auth-subtitle">Mostre quem é você no mundo dos e-sports!</p>
+
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
+
+            <form method="POST" action="/cadastro" class="auth-form">
+                <!-- Informações básicas -->
+                <input type="text" name="nome" placeholder="Seu nome completo" required>
+                <input type="email" name="email" placeholder="Seu e-mail" required>
+                <input type="password" name="senha" placeholder="Sua senha" required>
+                <input type="password" name="confirmar_senha" placeholder="Confirme a senha" required>
+
+                <!-- Dados adicionais -->
+                <input type="text" name="cpf" placeholder="000.000.000-00" required 
+                       oninput="formatarCPF(this)" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}">
+                <input type="text" name="endereco" placeholder="Endereço completo" required>
+
+                <textarea name="interesses" placeholder="Interesses e atividades (último ano)"></textarea>
+                <textarea name="eventos" placeholder="Eventos de e-sports que participou"></textarea>
+                <textarea name="compras" placeholder="Compras relacionadas a e-sports"></textarea>
+
+                <!-- Redes sociais -->
+                <hr>
+                <h3 class="section-title">Redes sociais e perfis de e-sports (opcional)</h3>
+                <input type="url" name="twitter" placeholder="Twitter/X">
+                <input type="url" name="instagram" placeholder="Instagram">
+                <input type="url" name="youtube" placeholder="Canal do YouTube">
+                <input type="url" name="twitch" placeholder="Canal da Twitch">
+                <input type="url" name="faceit" placeholder="Perfil Faceit">
+                <input type="url" name="hltv" placeholder="Perfil HLTV.org">
+
+                <button type="submit">Cadastrar</button>
+                <p class="auth-link">Já tem conta? <a href="/login">Faça login</a></p>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,11 +1,30 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
 from flask_socketio import SocketIO
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
 import os
+from firebase_auth import registrar_usuario, logar_usuario
+from firestore_db import salvar_dados_usuario, atualizar_redes_sociais, db
+from alerts import FanAlertSystem
+from app_factory import create_app
+
 
 load_dotenv()
+
+app, socketio = create_app()
+
+# Inicializa o sistema de alertas
+alert_system = FanAlertSystem(app)
+
+
+# Adicione isso após as imports
+USING_FIREBASE = os.getenv("FIREBASE_API_KEY") is not None
+
+if not USING_FIREBASE:
+    print("⚠️ ATENÇÃO: Firebase não configurado. Usando autenticação mockada para desenvolvimento.")
+    from firebase_auth import usuarios_mock  # Importa os dados mockados
+
 historico_conversa = {}
 
 app = Flask(__name__)
@@ -17,6 +36,7 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY")
 )
 
+# Função para carregar dados da FURIA
 def carregar_dados_furia():
     caminho_json = os.path.join(os.path.dirname(__file__), 'scraper', 'data', 'furia.json')
     
@@ -24,16 +44,13 @@ def carregar_dados_furia():
         with open(caminho_json, 'r', encoding='utf-8') as f:
             dados = json.load(f)
         
-        # Processa cada jogador para adicionar a URL da imagem
         for jogador in dados.get("elenco", []):
-            # Usa o ID do jogador para construir a URL da imagem da HLTV
             player_id = jogador.get('player_id', '')
             if player_id:
                 jogador['foto'] = f"https://www.hltv.org/img/static/player/player_{player_id}.png"
             else:
                 jogador['foto'] = url_for('static', filename='images/default_player.png')
             
-            # Garante que nickname existe
             jogador['nickname'] = jogador.get('nickname', jogador['nome'].split()[0])
         
         return dados
@@ -49,7 +66,7 @@ dados_furia = carregar_dados_furia()
 if dados_furia:
     elenco = ", ".join([player.get('nome', 'Jogador') for player in dados_furia.get('elenco', [])])
     ranking = dados_furia.get('ranking', 'Ranking desconhecido')
-    partidas = dados_furia.get('partidas_recentes', [])
+    partidas = dados_furia.get('partidas_recentes', [4])
     
     system_context = f"""
     Você é o FURIA_BOT, assistente virtual oficial da FURIA Esports (Counter-Strike).
@@ -77,6 +94,7 @@ else:
     (Informações atualizadas do time indisponíveis no momento.)
     """
 
+# Função para perguntar ao bot
 def pergunte(question: str, sid: str) -> str:
     try:
         if sid not in historico_conversa:
@@ -109,12 +127,123 @@ def pergunte(question: str, sid: str) -> str:
         print(f"ERRO NA API: {str(e)}")
         return f"Estou com problemas técnicos! Erro: {str(e)} 🛠️ #DIADEFURIA"
 
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        senha = request.form.get('senha')
+        
+        if not email or not senha:
+            return render_template('logincadastro.html', error="Preencha todos os campos!")
+        
+        resultado = logar_usuario(email, senha)
+        
+        if 'erro' in resultado:
+            return render_template('logincadastro.html', error=resultado['erro'])
+        
+        session['usuario'] = email
+        return redirect(url_for('homepage'))
+    
+    return render_template('logincadastro.html')
+
+@app.route("/cadastro", methods=['GET', 'POST'])
+def cadastro():
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+        email = request.form.get('email')
+        senha = request.form.get('senha')
+        confirmar_senha = request.form.get('confirmar_senha')
+
+        cpf = request.form.get('cpf')
+        endereco = request.form.get('endereco')
+        interesses = request.form.get('interesses')
+        eventos = request.form.get('eventos')
+        compras = request.form.get('compras')
+
+        redes = {
+            "twitter": request.form.get("twitter"),
+            "instagram": request.form.get("instagram"),
+            "youtube": request.form.get("youtube"),
+            "twitch": request.form.get("twitch")
+        }
+
+        perfis_esports = {
+            "faceit": request.form.get("faceit"),
+            "hltv": request.form.get("hltv")
+        }
+
+        # Validação básica
+        if not all([nome, email, senha, confirmar_senha, cpf, endereco]):
+            return render_template('cadastro.html', error="Preencha todos os campos obrigatórios!")
+
+        if senha != confirmar_senha:
+            return render_template('cadastro.html', error="As senhas não coincidem!")
+
+        resultado = registrar_usuario(email, senha, nome)
+
+        if 'erro' in resultado:
+            return render_template('cadastro.html', error=resultado['erro'])
+
+        uid = resultado['usuario']['id']
+        session['usuario'] = email
+        session['nome'] = nome
+        session['uid'] = uid  # salva UID no session
+
+        dados_completos = {
+            "nome": nome,
+            "email": email,
+            "cpf": cpf,
+            "endereco": endereco,
+            "interesses": interesses,
+            "eventos": eventos,
+            "compras": compras,
+            "redes_sociais": redes,
+            "perfis_esports": perfis_esports
+        }
+
+        sucesso = salvar_dados_usuario(uid, dados_completos)
+        session['profile_viewed'] = False  # Isso fará o badge aparecer
+
+        if not sucesso:
+            return render_template('cadastro.html', error="Erro ao salvar os dados no Firestore.")
+
+        return redirect(url_for('homepage'))
+
+    return render_template('cadastro.html')
+
+@app.route("/logout")
+def logout():
+    session.pop('usuario', None)
+    session.pop('nome', None)
+    return redirect(url_for('homepage'))
+
+@app.route("/analisarfan")
+def analisarfan():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    
+    uid = session.get('uid')
+    doc = db.collection('usuarios').document(uid).get()
+    
+    if doc.exists:
+        dados = doc.to_dict()
+        # Exemplo de análise gerada (substitua por IA real depois)
+        analise = f"""
+        🎯 Nível de Engajamento: 85/100
+        📊 Redes Sociais Ativas: {sum(1 for rede in dados.get('redes_sociais', {}) if rede)}/4
+        🔥 Torcedor desde: 2023
+        #DIADEFURIA
+        """
+        return render_template("analise_fan.html", dados=dados, analise=analise)
+    
+    return redirect(url_for('redes_sociais'))
+
+# Rota principal
 @app.route("/")
 def homepage():
     dados = carregar_dados_furia() or {}
     elenco = dados.get("elenco", [])
 
-    # Lógica de imagem por jogador (mantida)
     for jogador in elenco:
         nickname = jogador.get("nickname", "").lower()
         image_path = os.path.join(app.static_folder, 'images', 'players', f"{nickname}.png")
@@ -128,17 +257,15 @@ def homepage():
 
     proxima = None
 
-    # Verifica se existe uma partida ao vivo
+    # Lógica para determinar a próxima partida (mantida da versão original)
     live = next((p for p in partidas if p.get("status") == "live"), None)
     if live:
         proxima = live
     else:
-        # Se não tem ao vivo, procura uma futura
         upcoming = next((p for p in partidas if p.get("status") == "upcoming"), None)
         if upcoming:
             proxima = upcoming
         elif partidas_recentes:
-            # Se não tem ao vivo nem futura, pega a última jogada
             ultima = partidas_recentes[0]
             proxima = {
                 "adversario": ultima.get("adversario", "Desconhecido"),
@@ -146,10 +273,9 @@ def homepage():
                 "data": "Último jogo",
                 "campeonato": ultima.get("campeonato", "Campeonato não definido"),
                 "status": "completed",
-                "logo_adversario": ""  # opcional: buscar imagem se quiser
+                "logo_adversario": ""
             }
         else:
-            # fallback padrão
             proxima = {
                 "adversario": "Desconhecido",
                 "resultado": "?",
@@ -160,10 +286,89 @@ def homepage():
 
     return render_template("landing.html", elenco=elenco, proxima=proxima)
 
+# Rota do chat (protegida)
 @app.route("/chat")
 def chat():
-    return render_template("index.html")
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    return render_template("index.html", nome=session.get('nome', 'Fã da FURIA'))
 
+@app.route("/redes", methods=['GET', 'POST'])
+def redes_sociais():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Obter UID de forma segura
+    uid = session.get('uid')
+    if not uid:
+        flash("Erro de autenticação. Por favor, faça login novamente.", "error")
+        return redirect(url_for('login'))
+
+    # Carrega dados existentes
+    doc = db.collection('usuarios').document(uid).get()
+    redes = doc.to_dict().get('redes_sociais', {}) if doc.exists else {}
+
+    if request.method == 'POST':
+        novas_redes = {
+            "twitter": request.form.get("twitter", "").strip(),
+            "instagram": request.form.get("instagram", "").strip(),
+            "youtube": request.form.get("youtube", "").strip(),
+            "twitch": request.form.get("twitch", "").strip()
+        }
+
+        # Verifica se pelo menos uma rede foi preenchida
+        if not any(novas_redes.values()):
+            flash("Por favor, preencha pelo menos uma rede social.", "error")
+            return render_template("redes.html", redes=redes)
+
+        try:
+            # Atualiza apenas as redes sociais mantendo outros dados
+            sucesso = db.collection('usuarios').document(uid).update({
+                'redes_sociais': novas_redes
+            })
+            
+            flash("Redes sociais atualizadas com sucesso!", "success")
+            return redirect(url_for("analisarfan"))
+        except Exception as e:
+            print(f"Erro ao atualizar redes sociais: {str(e)}")
+            flash("Erro ao salvar redes sociais. Tente novamente.", "error")
+
+    return render_template("redes.html", redes=redes)
+
+@app.route('/alerts')
+def view_alerts():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    
+    uid = session.get('uid')
+    alerts_ref = db.collection('user_alerts').document(uid)
+    alerts_data = alerts_ref.get()
+    
+    if alerts_data.exists:
+        # Marcar como lido
+        alerts_ref.update({'read': True})
+        return render_template('alerts.html', alerts=alerts_data.to_dict().get('alerts', []))
+    
+    return render_template('alerts.html', alerts=[])
+
+@app.route("/coletar-dados", methods=['POST'])
+def coletar_dados():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    
+    flash("A coleta de dados agora é feita através do Dashboard Standalone", "info")
+    return redirect(url_for('redes_sociais'))
+
+@app.route("/coletar-dados-fan")
+def coletar_dados_fan():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    
+    flash("A coleta de dados agora é feita através do Dashboard Standalone", "info")
+    return redirect(url_for('redes_sociais'))
+
+
+# WebSocket handlers
 active_sessions = set()
 
 @socketio.on('connect')
@@ -173,6 +378,7 @@ def handle_connect():
     socketio.emit('system_message', {
         'message': 'Um novo usuário entrou no chat!',
         'type': 'notification'
+        
     }, skip_sid=request.sid)
 
 @socketio.on('disconnect')

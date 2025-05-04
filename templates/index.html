@@ -8,18 +8,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/furia_logo.png') }}">
 </head>
 <body>
     <div class="box-questions">
         <div class="header">
-            <p>FURIA CHAT</p>
+            <div class="header-content">
+                <a href="/" class="home-button"><i class="fas fa-home"></i></a>
+                <p>FURIA CHAT</p>
+            </div>
         </div>
         <p id="status"></p>
         <div id="historic">
-            <p class="welcome-message">
-                Bem-vindo ao CHAT DA FURIA! Use @FuriaBot seguido de sua pergunta sobre o time de CS:GO.
-            </p>
+            <div class="welcome-message">
+                Bem-vindo ao <strong>CHAT DA FURIA</strong>! Use <code>@FuriaBot</code> seguido de sua pergunta.
+                <div class="commands-container">
+                    <div class="command-item">elenco</div>
+                    <div class="command-item">ranking</div>
+                    <div class="command-item">próximo jogo</div>
+                    <div class="command-item">último jogo</div>
+                    <div class="command-item">história</div>
+                    <div class="command-item">títulos</div>
+                </div>
+            </div>
         </div>
         <div class="footer">
             <input type="text" placeholder="Digite @FuriaBot seguido de sua pergunta..." id="message-input" autocomplete="off">

@@ -673,3 +673,54 @@ body {
         animation: none;
     }
 }
+/* Estilos para os botões de autenticação */
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.auth-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 25px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.login-button {
+    background-color: var(--furia-red);
+    color: white;
+}
+
+.signup-button {
+    background-color: var(--furia-yellow);
+    color: var(--furia-black);
+}
+
+.auth-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
+}
+
+/* Ajustes para responsividade */
+@media (max-width: 768px) {
+    .auth-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .auth-button {
+        width: 100%;
+    }
+}
+

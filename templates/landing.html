@@ -8,6 +8,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/furia_logo.png') }}">
+    <style>
+        .profile-link {
+            position: relative;
+        }
+        .profile-link .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--furia-red);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
     <header class="furia-header">
@@ -20,6 +39,19 @@
                     <ul>
                         <li><a href="/">HOME</a></li>
                         <li><a href="/chat">CHAT</a></li>
+                        {% if 'usuario' in session %}
+                            <li><a href="/logout">SAIR</a></li>
+                            <li><a href="/analisarfan">ANÁLISE DO FÃ</a></li>
+                            <li class="profile-link">
+                                <a href="/redes">FÃ PROFILE</a>
+                                {% if not session.get('profile_viewed') %}
+                                <span class="badge">!</span>
+                                {% endif %}
+                            </li>
+                        {% else %}
+                            <li><a href="/login">LOGIN</a></li>
+                            <li><a href="/cadastro">CADASTRO</a></li>
+                        {% endif %}
                         <li><a href="https://www.furia.gg" target="_blank" rel="noopener noreferrer">LOJA</a></li>
                     </ul>
                 </nav>
@@ -87,10 +119,24 @@
                     <a href="/chat" class="cta-button">
                         CONVERSE COM OUTROS FÃS <i class="fas fa-arrow-right"></i>
                     </a>
+                    <div class="auth-buttons">
+                        {% if 'usuario' not in session %}
+                        <a href="/login" class="auth-button login-button">
+                            <i class="fas fa-sign-in-alt"></i> LOGIN
+                        </a>
+                        <a href="/cadastro" class="auth-button signup-button">
+                            <i class="fas fa-user-plus"></i> CADASTRO
+                        </a>
+                        {% else %}
+                        <a href="/redes" class="auth-button profile-button">
+                            <i class="fas fa-user"></i> MEU PERFIL
+                        </a>
+                        {% endif %}
+                    </div>
                     <div class="social-icons">
                         <a href="https://x.com/FURIA" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
                         <a href="https://instagram.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.youtube.com/@fallenINSIDER/videos" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.youtube.com/@FURIAggCS/videos" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
             </div>
@@ -137,8 +183,7 @@
                 <div class="social-icons">
                     <a href="https://x.com/FURIA" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
                     <a href="https://instagram.com/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.youtube.com/@fallenINSIDER/videos" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
-                    <a href="https://twitch.tv/furiagg" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitch"></i></a>
+                    <a href="https://www.youtube.com/@FURIAggCS/videos" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
                 </div>
             </div>
         </div>

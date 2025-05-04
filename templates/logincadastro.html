@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | FURIA Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/furia_logo.png') }}">
+</head>
+<body>
+    <header class="furia-header">
+        <div class="header-main">
+            <div class="container">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='images/furia_logo.png') }}" alt="FURIA Logo" loading="lazy">
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/">HOME</a></li>
+                        <li><a href="/chat">CHAT</a></li>
+                        <li><a href="/login">LOGIN</a></li>
+                        <li><a href="/cadastro">CADASTRO</a></li>
+                        <li><a href="https://www.furia.gg" target="_blank" rel="noopener noreferrer">LOJA</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="hero-section auth-section">
+        <div class="container">
+            <div class="auth-container">
+                <h1 class="auth-title">ENTRAR <span>AGORA</span></h1>
+                <p class="auth-subtitle">ACESSO EXCLUSIVO PARA FÃS DE ESPORTS</p>
+
+                {% if error %}
+                    <p class="error-message">{{ error }}</p>
+                {% endif %}
+
+                <form method="POST" action="/login" class="auth-form">
+                    <input type="email" name="email" placeholder="Seu e-mail" required>
+                    <input type="password" name="senha" placeholder="Sua senha" required>
+                    <button type="submit">Entrar</button>
+                    <p class="auth-link">Não tem conta? <a href="/cadastro">Cadastre-se</a></p>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

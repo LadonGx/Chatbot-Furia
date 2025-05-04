@@ -3,35 +3,35 @@
         {
             "nome": "FalleN",
             "nickname": "FalleN",
-            "perfil": "https://www.hltv.org/player/2023/fallen",
+            "perfil": "https://www.hltv.org/team/8297/furia/player/2023/fallen",
             "player_id": "2023"
         },
         {
             "nome": "yuurih",
             "nickname": "yuurih",
-            "perfil": "https://www.hltv.org/player/12553/yuurih",
+            "perfil": "https://www.hltv.org/team/8297/furia/player/12553/yuurih",
             "player_id": "12553"
         },
         {
             "nome": "YEKINDAR",
             "nickname": "YEKINDAR",
-            "perfil": "https://www.hltv.org/player/13915/yekindar",
+            "perfil": "https://www.hltv.org/team/8297/furia/player/13915/yekindar",
             "player_id": "13915"
         },
         {
             "nome": "KSCERATO",
             "nickname": "KSCERATO",
-            "perfil": "https://www.hltv.org/player/15631/kscerato",
+            "perfil": "https://www.hltv.org/team/8297/furia/player/15631/kscerato",
             "player_id": "15631"
         },
         {
             "nome": "molodoy",
             "nickname": "molodoy",
-            "perfil": "https://www.hltv.org/player/24144/molodoy",
+            "perfil": "https://www.hltv.org/team/8297/furia/player/24144/molodoy",
             "player_id": "24144"
         }
     ],
-    "ranking": "Valve rankingBeta#18",
+    "ranking": "Valve rankingBeta#22",
     "partidas_recentes": [
         {
             "adversario": "The MongolZ",
@@ -65,5 +65,5 @@
         }
     ],
     "partidas_futuras": [],
-    "ultima_atualizacao": "2025-04-30T11:56:30.268009"
+    "ultima_atualizacao": "2025-05-04T13:00:16.190644"
 }

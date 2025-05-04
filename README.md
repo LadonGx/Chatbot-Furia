@@ -6,7 +6,8 @@ Este é o **FURIA_CS**, uma landing com espaço para chat interativo em tempo re
 
 ## ✨ Funcionalidades
 
-- 🔥 Interface web em Flask com Socket.IO (chat em tempo real)
+- 🔧 Interface web em Flask com Socket.IO (chat em tempo real)
+- 🔥 Armazenar e autenticar usuários com Firebase.
 - 🎯 Scraper automatizado que coleta:
   - Elenco atual
   - Partidas recentes
@@ -15,17 +16,24 @@ Este é o **FURIA_CS**, uma landing com espaço para chat interativo em tempo re
 - 🤖 IA com comportamento customizado com "personalidade FURIA"
 
 ---
+## ⚙️ Configuração
+- Pré-requisitos:
+  - Python 3.10+
+  - Conta no Firebase
+  - Chave API do OpenRouter (opcional)
+
+---
 
 ## 🚀 Como Rodar o Projeto
 
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/furia-chatbot.git
+git clone https://github.com/LadonGx/Chatbot-Furia
 cd furia-chatbot
 ```
 
-### 2. Crie e ative um ambiente virtual
+### 2. Crie e ative um ambiente virtual (Opcional)
 
 ```bash
 python -m venv venv
@@ -45,10 +53,19 @@ Crie um arquivo `.env` baseado no `.env.example` com:
 
 ```
 OPENROUTER_API_KEY=sua_chave_openrouter
-SECRET_KEY=uma_senha_secreta
+SECRET_KEY=sua_chave_openrouter
+FIREBASE_API_KEY=sua-chave-aqui
+FIREBASE_AUTH_DOMAIN=sua-chave-aqui
+FIREBASE_PROJECT_ID=sua-chave-aqui
+FIREBASE_STORAGE_BUCKET=sua-chave-aqui
+FIREBASE_MESSAGING_SENDER_ID=sua-chave-aqui
+FIREBASE_APP_ID=sua-chave-aqui
+FIREBASE_MEASUREMENT_ID=sua-chave-aqui
+FIREBASE_CREDENTIALS_PATH=sua-chave-aqui
 ```
 > 🔑 Obtenha a chave em https://openrouter.ai
-> 🤖 O modelo utilizado no projeto foi "deepseek/deepseek-chat-v3-0324:free" 
+> 🤖 O modelo utilizado no projeto foi "deepseek/deepseek-chat-v3-0324:free"
+> 🔥 Crie a conta do firebase em https://firebase.google.com
 ---
 
 ### 5. Execute o scraper (opcional para atualizar os dados da FURIA)
@@ -79,7 +96,7 @@ Digite no campo de mensagem:
 ```
 @FuriaBot quem é o IGL?
 @FuriaBot quando é o próximo jogo?
-@FuriaBot qual foi o resultado contra a NAVI?
+@FuriaBot qual foi o último jogo?
 ```
 
 ---
@@ -88,6 +105,7 @@ Digite no campo de mensagem:
 
 - Python 3.x
 - Flask + Flask-SocketIO
+- Firebase
 - BeautifulSoup + Cloudscraper (Web Scraping)
 - OpenAI SDK via OpenRouter
 - HTML/CSS/JS

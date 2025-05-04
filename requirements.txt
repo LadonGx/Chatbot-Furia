@@ -7,3 +7,5 @@ apscheduler
 cloudscraper==1.2.60
 flask-socketio
 eventlet
+pyrebase4
+firebase-admin

@@ -139,16 +139,25 @@ body {
 }
 
 /* Mensagem de boas-vindas */
-.welcome-message {
-    display: block;
-    text-align: center;
-    color: var(--furia-black);
-    opacity: 0.8;
-    font-size: 0.9rem;
-    border-bottom: 1px dashed var(--furia-black);
-    margin: 10px auto;
-    padding: 10px;
+.welcome-message strong {
+    color: #000000;
+    font-weight: 700;
 }
+
+.welcome-message .help-text {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.95rem;
+    color: #11b2fd;
+}
+
+.welcome-message .commands-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
 
 /* Footer e input */
 .footer {
@@ -214,4 +223,90 @@ input:focus {
 #historic::-webkit-scrollbar-thumb {
     background-color: var(--furia-black);
     border-radius: 10px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+}
+
+.home-button {
+    position: absolute;
+    left: 15px;
+    color: var(--furia-white);
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.home-button:hover {
+    color: var(--furia-yellow);
+    transform: scale(1.1);
+}
+
+.help-commands {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 14px;
+}
+.help-commands code {
+    background: rgba(255, 215, 0, 0.2);
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.help-text {
+    cursor: default;
+    margin-top: 15px;
+}
+
+.help-text code {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin: 0 3px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9em;
+    border: 1px dashed rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.help-text code:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+    border-style: solid;
+}
+
+.help-text code:active {
+    transform: translateY(0);
+}
+
+.commands-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.command-item {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px dashed rgba(0, 0, 0, 0.3);
+}
+
+.command-item:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+    border-style: solid;
 }
